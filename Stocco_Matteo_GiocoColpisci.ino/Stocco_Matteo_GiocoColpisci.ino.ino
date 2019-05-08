@@ -4,6 +4,7 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 int livello = 0;
 int vite = 3;
 int stato = 0;
+bool passo = true;
 
 int btnpremuto = 0;
 int bottone  = 0;
@@ -53,13 +54,13 @@ void setup() {
   lcd.createChar(0, cuore);
   lcd.createChar(1, cuorevuoto);
   lcd.createChar(2, cuorerotto);
-  lcd.createChar(3,prova);
   lcd.setCursor(2,0); lcd.print("BENVENUTO IN"); lcd.setCursor(5,1); lcd.print("ENEMY");
   delay(3000); lcd.clear();
   lcd.setCursor(1,0); lcd.print("INIZIA PARTITA");
   aspetta(); lcd.clear();
   lcd.setCursor(2,0); lcd.print("3..."); delay(750); lcd.setCursor(6,0); lcd.print("2..."); delay(750); lcd.setCursor(9,0); lcd.print("1...."); delay(750);
   lcd.setCursor(6,1); lcd.print("VIA!"); delay(1000); lcd.clear();
+  randomSeed(analogRead(A5));   
 }
 
 void rotturacuore()
@@ -68,40 +69,38 @@ void rotturacuore()
   {
     if(i%2 == 0)
     {
-      lcd.setCursor(vite + 12, 0);
+      lcd.setCursor(vite + 10, 0);
       lcd.print(char(1));
       delay(400);
     } else{
-      lcd.setCursor(vite + 12, 0);
+      lcd.setCursor(vite + 10, 0);
       lcd.print(char(0));
       delay(400);
     }
   }
-  lcd.setCursor(vite + 12, 0);
+  lcd.setCursor(vite + 10, 0);
   lcd.print(char(2));
 }
 
 void uscita()
 {
   long simbolo = random(1,14);
-  if(simbolo <= 6)
+  if(simbolo == 6)
   {
     lcd.setCursor(0,0); lcd.print("X");
     long durata = random(100,300) * 10; controllocattivo(durata); lcd.setCursor(0,0); lcd.print("   "); delay(1500);
   } 
-  else if(simbolo <= 11)
+  else if(simbolo <= 5)
   {
     lcd.setCursor(0,0); lcd.print("U"); 
-    long durata = random(100,300) * 10; controllobuono(durata); delay(1500);
-  } else if(simbolo == 12)
+    long durata = random(100,300) * 10; controllobuono(durata); lcd.setCursor(0,0); lcd.print("   "); delay(1500);
+  } else if(simbolo <= 12)
   {
     lcd.setCursor(0,0); lcd.print("+"); 
-    long durata = random(100,300) * 10; controllovita(durata); lcd.setCursor(0,0); lcd.print("   "); delay(1500);
-  } /*else if(simbolo == 13)
-  {
-    lcd.setCursor(0,0); lcd.print("-"); 
-    long durata = random(100,300) * 10; delay(durata); lcd.clear(); delay(200);
-  }*/
+    long durata = random(100,300) * 10; Max(); 
+    if(passo == true){controllovita(durata);} else{ delay(1000);}
+    lcd.setCursor(0,0); lcd.print("   "); delay(1500);
+  }
 }
 void controllocattivo(long durata)
 {
@@ -144,10 +143,21 @@ void controllovita(long durata)
     btnpremuto = BottonePremuto();
     if(btnpremuto == SELECT)
     {
-       lcd.setCursor(0,1); lcd.print(livello); vite--; finito = true;
+      lcd.setCursor(0,1); lcd.print(livello); vite++; lcd.setCursor(vite + 10, 0);
+      lcd.print(char(0)); finito = true;
     } else{
       i++; delay(1);
     }
+  }
+}
+
+void Max()
+{
+  if(vite == 5)
+  {
+    passo = false;
+  } else{
+    passo = true;
   }
 }
 
@@ -156,10 +166,8 @@ void loop() {
   if(stato == 0)
   {
      lcd.setCursor(0,1); lcd.print(livello);
-     lcd.setCursor(13, 0); lcd.print(char(0)); lcd.print(char(0)); lcd.print(char(0)); 
+     lcd.setCursor(11, 0); lcd.print(char(0)); lcd.print(char(0)); lcd.print(char(0)); lcd.print(char(1)); lcd.print(char(1)); 
      stato = 1;
   }
   uscita();
-  //delay(2000);
-  //rotturacuore();
 }
