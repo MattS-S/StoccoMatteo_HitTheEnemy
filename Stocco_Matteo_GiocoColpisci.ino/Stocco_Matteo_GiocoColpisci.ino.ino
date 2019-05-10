@@ -5,6 +5,7 @@ int livello = 0;
 int vite = 3;
 int stato = 0;
 bool passo = true;
+bool cattivo = false;
 
 int btnpremuto = 0;
 int bottone  = 0;
@@ -48,6 +49,22 @@ byte cuorerotto[8] = {
   B00000, B00000, B00010, B10101, B10001, B01000, B00100, B00000
 };
 
+byte cattivo_part1[8] = {
+  B00011, B00100, B01100, B01010, B01011, B10000, B10000, B10001
+};
+
+byte cattivo_part2[8] = {
+  B10000, B10000, B10001, B01010, B01000, B01000, B00100, B00011
+};
+
+byte cattivo_part3[8] = {
+  B11000, B00100, B00110, B01010, B11010, B00001, B00001, B10001
+};
+
+byte cattivo_part4[8] = {
+  B00001, B00001, B10001, B01010, B00010, B00010, B00100, B11000
+};
+
 void setup() {
   // put your setup code here, to run once:
   lcd.begin(16, 2);
@@ -85,19 +102,28 @@ void rotturacuore()
 void uscita()
 {
   long simbolo = random(1,14);
-  if(simbolo == 6)
+  if(simbolo <= 6)
   {
-    lcd.setCursor(0,0); lcd.print("X");
-    long durata = random(100,300) * 10; controllocattivo(durata); lcd.setCursor(0,0); lcd.print("   "); delay(1500);
+    lcd.createChar(3, cattivo_part1);
+    lcd.createChar(4, cattivo_part2);
+    lcd.createChar(5, cattivo_part3);
+    lcd.createChar(6, cattivo_part4);
+    lcd.setCursor(2,0); lcd.print(char(3));  lcd.print(char(5)); lcd.setCursor(2,1); lcd.print(char(4)); lcd.print(char(6));
+    long durata = random(100,250) * 10; controllocattivo(durata); if(cattivo == true)
+    {
+      lcd.setCursor(0,0); lcd.print("      "); lcd.setCursor(2,1); lcd.print("      "); delay(1500); cattivo = false;
+    } else{
+       lcd.setCursor(0,0); lcd.print("      "); lcd.setCursor(2,1); lcd.print("      "); rotturacuore(); vite--; delay(400);
+    }
   } 
-  else if(simbolo <= 5)
+  else if(simbolo <= 12)
   {
     lcd.setCursor(0,0); lcd.print("U"); 
-    long durata = random(100,300) * 10; controllobuono(durata); lcd.setCursor(0,0); lcd.print("   "); delay(1500);
-  } else if(simbolo <= 12)
+    long durata = random(100,250) * 10; controllobuono(durata); lcd.setCursor(0,0); lcd.print("   "); delay(1500);
+  } else if(simbolo == 13)
   {
     lcd.setCursor(0,0); lcd.print("+"); 
-    long durata = random(100,300) * 10; Max(); 
+    long durata = random(100,250) * 10; Max(); 
     if(passo == true){controllovita(durata);} else{ delay(1000);}
     lcd.setCursor(0,0); lcd.print("   "); delay(1500);
   }
@@ -111,7 +137,7 @@ void controllocattivo(long durata)
     btnpremuto = BottonePremuto();
     if(btnpremuto == SELECT)
     {
-      livello++; lcd.setCursor(0,1); lcd.print(livello); finito = true;
+      livello++; lcd.setCursor(0,1); lcd.print(livello); cattivo = true; finito = true;
     } else{
       i++; delay(1);
     }
@@ -161,6 +187,10 @@ void Max()
   }
 }
 
+void fine()
+{
+  
+}
 void loop() {
   // put your main code here, to run repeatedly:
   if(stato == 0)
