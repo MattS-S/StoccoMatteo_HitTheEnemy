@@ -6,6 +6,10 @@ int vite = 3;
 int stato = 0;
 bool passo = true;
 bool cattivo = false;
+bool difficolta = false;
+
+int delay1 = 150;
+int delay2 = 250;
 
 int btnpremuto = 0;
 int bottone  = 0;
@@ -78,14 +82,7 @@ byte buono_part3[8]{
 };
 
 byte buono_part4[8]{
-   B00001, 
-   B00001, 
-   B01001, 
-   B10010, 
-   B00010, 
-   B00010, 
-   B00100, 
-   B11000
+   B00001, B00001, B01001, B10010, B00010, B00010, B00100, B11000
 };
 
 byte vita_part1[8]{
@@ -140,8 +137,10 @@ void rotturacuore()
 
 void uscita()
 {
+  setDifficulty();
+  changeDifficulty();
   long simbolo = random(1,14);
-  if(simbolo <= 6)
+  if(simbolo <= 10)
   {
     lcd.createChar(3, cattivo_part1);
     lcd.createChar(4, cattivo_part2);
@@ -149,7 +148,7 @@ void uscita()
     lcd.createChar(6, cattivo_part4);
     long posto = random(1,4);
     lcd.setCursor(Cursore(posto),0); lcd.print(char(3));  lcd.print(char(5)); lcd.setCursor(Cursore(posto),1); lcd.print(char(4)); lcd.print(char(6));
-    long durata = random(100,200) * 10; controllocattivo(durata, Cursore(posto)); if(cattivo == true)
+    long durata = random(delay1,delay2) * 10; controllocattivo(durata, Cursore(posto)); if(cattivo == true)
     {
       lcd.setCursor(Cursore(posto),0); lcd.print("  "); lcd.setCursor(Cursore(posto),1); lcd.print("  "); delay(1500); cattivo = false;
     } else{
@@ -164,14 +163,14 @@ void uscita()
     lcd.createChar(6, buono_part4);
     long posto = random(1,4);
     lcd.setCursor(Cursore(posto),0); lcd.print(char(3));  lcd.print(char(5)); lcd.setCursor(Cursore(posto),1); lcd.print(char(4)); lcd.print(char(6));
-    long durata = random(100,200) * 10; controllobuono(durata, Cursore(posto)); lcd.setCursor(Cursore(posto),0); lcd.print("  "); lcd.setCursor(Cursore(posto),1); lcd.print("  "); delay(1000); fine();
+    long durata = random(delay1,delay2) * 10; controllobuono(durata, Cursore(posto)); lcd.setCursor(Cursore(posto),0); lcd.print("  "); lcd.setCursor(Cursore(posto),1); lcd.print("  "); delay(1000); fine();
   } else if(simbolo == 13)
   {
     lcd.createChar(3, vita_part1); lcd.createChar(4, vita_part2); lcd.createChar(5, vita_part3); lcd.createChar(6, vita_part4);
     long posto = random(1,4);
     lcd.setCursor(Cursore(posto),0); lcd.print(char(3)); lcd.print(char(4)); lcd.setCursor(Cursore(posto),1); lcd.print(char(5)); lcd.print(char(6)); 
-    long durata = random(100,200) * 10; Max(); 
-    if(passo == true){controllovita(durata, Cursore(posto));} else{ delay(1000);}
+    long durata = random(delay1,delay2) * 10; Max(); 
+    if(passo == true){controllovita(durata, Cursore(posto));} else{ delay(durata);}
     lcd.setCursor(Cursore(posto),0); lcd.print("  "); lcd.setCursor(Cursore(posto),1); lcd.print("  "); delay(1500);
   }
 }
@@ -277,13 +276,64 @@ void fine()
   }
 }
 
+void setDifficulty()
+{
+  if(livello <= 10)
+  {
+    delay1 = 150;
+    delay2 = 250;
+  } else if(livello <= 20)
+  {
+    delay1 = 100;
+    delay2 = 200;
+  }else if(livello <= 25)
+  {
+    delay1 = 75;
+    delay2 = 150;
+  }else if(livello > 25)
+  {
+    delay1 = 50;
+    delay2 = 100;
+  }
+}
+
+void changeDifficulty()
+{
+  if(livello == 10 && difficolta == false)
+  {
+    lcd.clear();
+    lcd.setCursor(3,0); lcd.print("DIFFICOLTA"); lcd.setCursor(6,1); lcd.print("MEDIA"); delay(1500);
+    difficolta = true;
+    messaggio();
+  } else if(livello == 20 && difficolta == true)
+  {
+    lcd.clear();
+    lcd.setCursor(3,0); lcd.print("DIFFICOLTA"); lcd.setCursor(3,1); lcd.print("DIFFICILE"); delay(1500);
+    difficolta = false;
+    messaggio();
+  } else if(livello == 25 && difficolta == false)
+  {
+    lcd.clear();
+    lcd.setCursor(3,0); lcd.print("DIFFICOLTA"); lcd.setCursor(2,1); lcd.print("IMPOSSIBILE"); delay(1500);
+    difficolta = true;
+    messaggio();
+  }
+}
+
+void messaggio()
+{
+  lcd.clear();
+  lcd.setCursor(0,0); lcd.print("|"); lcd.setCursor(0,1); lcd.print("|"); lcd.setCursor(10,0); lcd.print("|"); lcd.setCursor(10,1); lcd.print("|");
+  lcd.setCursor(11,1); lcd.print("Lv:" + (String)livello);
+  lcd.setCursor(11, 0); lcd.print(char(0)); lcd.print(char(0)); lcd.print(char(0)); lcd.print(char(1)); lcd.print(char(1)); delay(750);
+}
+
 void loop() {
   // put your main code here, to run repeatedly:
   if(stato == 0)
   {
-    lcd.setCursor(0,0); lcd.print("|"); lcd.setCursor(0,1); lcd.print("|"); lcd.setCursor(10,0); lcd.print("|"); lcd.setCursor(10,1); lcd.print("|");
-    lcd.setCursor(11,1); lcd.print("Lv:" + (String)livello);
-    lcd.setCursor(11, 0); lcd.print(char(0)); lcd.print(char(0)); lcd.print(char(0)); lcd.print(char(1)); lcd.print(char(1)); 
+    lcd.setCursor(3,0); lcd.print("DIFFICOLTA"); lcd.setCursor(5,1); lcd.print("FACILE"); delay(1500);
+    messaggio();
     stato = 1;
   } else if(stato == 1){
     uscita();
