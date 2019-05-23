@@ -1,27 +1,31 @@
+#include <EEPROM.h>
 #include <LiquidCrystal.h>
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 int livello = 0;
-int vite = 3;
 int stato = 0;
+int vite = 3;
+int record = 0;
 bool passo = true;
 bool cattivo = false;
 bool difficolta = false;
+bool primo = true;
+
 float tempo1 = 0;
 float tempo2 = 0;
-
 int delay1 = 150;
 int delay2 = 250;
 
 int btnpremuto = 0;
 int bottone  = 0;
-
 int RIGHT = 0;
 int UP  = 1;
 int DOWN = 2;
 int LEFT  = 3;
 int SELECT = 4;
 int NONE = 5;
+
+uint8_t Eeprom = 100;
 
 //metodo che controlla il bottone premuto
 int BottonePremuto() {
@@ -114,9 +118,10 @@ void setup() {
 
 void Intro()
 {
+  record = EEPROM.read(Eeprom);
   lcd.setCursor(2,0); lcd.print("BENVENUTO IN"); lcd.setCursor(5,1); lcd.print("ENEMY");
   delay(3000); lcd.clear();
-  lcd.setCursor(1,0); lcd.print("INIZIA PARTITA");
+  lcd.setCursor(1,0); lcd.print("INIZIA PARTITA"); lcd.setCursor(1,1); lcd.print("RECORD: Lv " + (String)record);
   aspetta(); lcd.clear();
   lcd.setCursor(2,0); lcd.print("3..."); delay(750); lcd.setCursor(6,0); lcd.print("2..."); delay(750); lcd.setCursor(9,0); lcd.print("1...."); delay(750);
   lcd.setCursor(6,1); lcd.print("VIA!"); delay(1000); lcd.clear();
@@ -142,6 +147,7 @@ void rotturacuore()
 
 void uscita()
 {
+  recordRaggiunto();
   setDifficulty();
   changeDifficulty();
   long simbolo = random(1,14);
@@ -267,10 +273,28 @@ void Max()
   }
 }
 
+void recordRaggiunto()
+{
+  if(livello > record && primo == true)
+  {
+    lcd.clear(); lcd.setCursor(2,0); lcd.print("NUOVO RECORD");
+    for(int i = 1; i < 17; i++)
+    {
+      lcd.setCursor(i,1); lcd.print("-"); delay(200);
+    }
+    messaggio(); primo = false;
+  }
+}
+
 void fine()
 {
   if(vite <= 0)
   {
+    if(livello > record)
+    {
+      record = livello;
+      EEPROM.write(Eeprom, record);
+    }
     stato = 2;
   }
 }
@@ -284,15 +308,19 @@ void setDifficulty()
   } else if(livello <= 20)
   {
     delay1 = 90;
-    delay2 = 180;
-  }else if(livello <= 25)
+    delay2 = 130;
+  }else if(livello <= 30)
   {
     delay1 = 65;
-    delay2 = 140;
-  }else if(livello > 25)
+    delay2 = 100;
+  }else if(livello <= 40)
   {
     delay1 = 40;
     delay2 = 80;
+  } else if(livello > 40)
+  {
+    delay1 = 30;
+    delay2 = 50;
   }
 }
 
@@ -310,7 +338,13 @@ void changeDifficulty()
     lcd.setCursor(3,0); lcd.print("DIFFICOLTA"); lcd.setCursor(3,1); lcd.print("DIFFICILE"); delay(1500);
     difficolta = false;
     messaggio();
-  } else if(livello == 25 && difficolta == false)
+  } else if(livello == 30 && difficolta == false)
+  {
+    lcd.clear();
+    lcd.setCursor(3,0); lcd.print("DIFFICOLTA"); lcd.setCursor(0,1); lcd.print("MOLTO  DIFFICILE"); delay(1500);
+    difficolta = true;
+    messaggio();
+  }  else if(livello == 40 && difficolta == false)
   {
     lcd.clear();
     lcd.setCursor(3,0); lcd.print("DIFFICOLTA"); lcd.setCursor(2,1); lcd.print("IMPOSSIBILE"); delay(1500);
@@ -339,10 +373,10 @@ void messaggioSconfitta()
 {
   tempo1 = tempo1/1000;
   tempo2 = millis()/1000;
-  float t = tempo2-tempo1;
+  int t = tempo2-tempo1;
   lcd.clear();
-  lcd.setCursor(3,0); lcd.print("FINE GIOCO");
-  lcd.setCursor(0,1); lcd.print("Lv: " + String(livello) + "    " + String(t) + "s");
+  lcd.setCursor(0,0); lcd.print("FINE GIOCO  " + String(t) + "s");
+  lcd.setCursor(0,1); lcd.print("Lv:" + String(livello) + "   Best:" + String(record));
 }
 
 void loop() {
