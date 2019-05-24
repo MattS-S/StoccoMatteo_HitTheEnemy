@@ -10,6 +10,7 @@ bool passo = true;
 bool cattivo = false;
 bool difficolta = false;
 bool primo = true;
+String arrIntro[16]{"-","H","I","T"," ","T","H","E"," ","E","N","E","M","Y","-"}; 
 
 float tempo1 = 0;
 float tempo2 = 0;
@@ -119,7 +120,11 @@ void setup() {
 void Intro()
 {
   record = EEPROM.read(Eeprom);
-  lcd.setCursor(2,0); lcd.print("BENVENUTO IN"); lcd.setCursor(5,1); lcd.print("ENEMY");
+  lcd.setCursor(2,0); lcd.print("BENVENUTO IN"); 
+  for(int i = 0; i < 16; i++)
+  {
+    lcd.setCursor(i+1,1); lcd.print(arrIntro[i]); delay(250);
+  }
   delay(3000); lcd.clear();
   lcd.setCursor(1,0); lcd.print("INIZIA PARTITA"); lcd.setCursor(1,1); lcd.print("RECORD: Lv " + (String)record);
   aspetta(); lcd.clear();
